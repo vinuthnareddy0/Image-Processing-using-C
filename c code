@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define HEADER_SIZE 54 
+unsigned char makeGray(unsigned char r, unsigned char g, unsigned char b) 
+{
+    return (r + g + b) / 3; 
+}
+int main() 
+{
+    FILE *inputFile;
+    FILE *outputFile;
+    unsigned char header[HEADER_SIZE];
+    unsigned char red, green, blue;
+    
+    inputFile = fopen("input.bmp", "rb");
+    if (inputFile == NULL) 
+    {
+        printf("Couldn't open the input file!\n");
+        return 1;
+    }
+
+    outputFile = fopen("output.bmp", "wb");
+    if (outputFile == NULL) 
+    {
+        printf("Couldn't create the output file!\n");
+        fclose(inputFile);
+        return 1;
+    }
+
+    fread(header, sizeof(unsigned char), HEADER_SIZE, inputFile);
+    fwrite(header, sizeof(unsigned char), HEADER_SIZE, outputFile);
+
+    while (fread(&blue, 1, 1, inputFile) &&
+           fread(&green, 1, 1, inputFile) &&
+           fread(&red, 1, 1, inputFile)) 
+    {
+        unsigned char gray = makeGray(red, green, blue);
+        fwrite(&gray, 1, 1, outputFile);
+        fwrite(&gray, 1, 1, outputFile);
+        fwrite(&gray, 1, 1, outputFile);
+    }
+    fclose(inputFile);
+    fclose(outputFile);
+    
+    printf("Done! The grayscale image is saved as 'output.bmp'.\n");
+    return 0;
+}
